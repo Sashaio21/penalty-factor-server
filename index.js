@@ -132,23 +132,39 @@ app.get('/solution/getall', checkAutharization, async (req,res)=>{
 })
 
 
-//Добавить новое решение
-app.post('/solution/add', checkAutharization, async (req,res)=>{
+
+// Добавить новое решение
+app.post('/solution/add', checkAutharization, async (req, res) => {
     try {
+        const { nameSolution } = req.body; // Получаем название решения из тела запроса
+
+        // Проверяем, существует ли задача с таким же названием для данного пользователя
+        const existingSolution = await Solution.findOne({ 
+            userId: req.userId, 
+            nameSolution 
+        });
+
+        if (existingSolution) {
+            // Если решение с таким названием уже существует, возвращаем ошибку
+            return res.status(400).json({ error: 'Задача с таким названием уже существует' });
+        }
+
+        // Если такого решения нет, создаём новое
         const dataSolution = {
             userId: req.userId,
             ...req.body
-        }
-        console.log(dataSolution)
-        const doc = new Solution(dataSolution)
-        const newSolution = await doc.save()
-        return res.json(newSolution)    
+        };
+        console.log(dataSolution);
 
+        const doc = new Solution(dataSolution);
+        const newSolution = await doc.save();
+
+        return res.json(newSolution);
     } catch (error) {
-        print(error)
-        return res.json({"error": "ошибка сохранения решения"})
+        console.error(error); // Используйте console.error для вывода ошибок
+        return res.status(500).json({ error: 'Ошибка сохранения решения' });
     }
-})
+});
 
 
 //Получить решение по id
