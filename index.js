@@ -120,16 +120,18 @@ app.get('/auth/me', checkAutharization, async(req, res)=>{
 
 //-----------------------------------------Работа с решениями---------------------------------------------------------------
 //Получить все решения
-app.get('/solution/getall', checkAutharization, async (req,res)=>{
+app.get('/solution/getall', checkAutharization, async (req, res) => {
     try {
         const listSolutions = await Solution.find({
-            userId:req.userId
-        })
-        return res.json (listSolutions)
+            userId: req.userId
+        }).sort({ createdAt: -1 }); // Сортировка по убыванию времени создания
+
+        return res.json(listSolutions);
     } catch (error) {
-        return res.json({"error": "не удалось получить все решения"})
+        return res.json({ "error": "не удалось получить все решения" });
     }
-})
+});
+
 
 
 
